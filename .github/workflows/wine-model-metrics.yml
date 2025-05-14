@@ -1,18 +1,31 @@
-name: wine-model-training
+name: model-training
 on: [push]
+permissions: write-all # 이걸 써줘야 됨. 그래야 마크다운을 작성할 수 있다..?! 
 jobs:
   run:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '16'
       - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
+      - uses: iterative/setup-cml@v1
       - name: Train model
         run: |
           pip install -r requirements.txt
           python train.py
-      - name: Generate Metric
-        run: |
-          echo "MODEL METRICS"
-          cat metrics.txt
+      - name: Generate Report
+        env:
+     	      # GITHUB 커밋 로그에 레포트를 출력하기 위해 GITHUB 토큰을 넣어줍니다. (알아서 생성 된대)
+            REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: | # 레포트 만드는 작업...
+          echo "## MODEL METRICS" > report.md 
+          cat metrics.txt >> report.md
+
+          echo "## Data viz" >> report.md
+          echo "![](feature_importance.png)" >> report.md
+          echo "![](residuals.png)" >> report.md
+          cml comment create report.md
