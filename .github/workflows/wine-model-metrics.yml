@@ -1,6 +1,6 @@
 name: model-training
 on: [push]
-permissions: write-all # 이걸 써줘야 됨. 그래야 마크다운을 작성할 수 있다..?! 
+permissions: write-all
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -18,10 +18,9 @@ jobs:
           pip install -r requirements.txt
           python train.py
       - name: Generate Report
-        env:
-     	      # GITHUB 커밋 로그에 레포트를 출력하기 위해 GITHUB 토큰을 넣어줍니다. (알아서 생성 된대)
+        env:  
             REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: | # 레포트 만드는 작업...
+        run: |
           echo "## MODEL METRICS" > report.md 
           cat metrics.txt >> report.md
 
